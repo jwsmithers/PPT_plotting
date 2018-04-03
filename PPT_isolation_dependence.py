@@ -16,6 +16,21 @@ for i in channels:
 canvas = TCanvas("canvas","",0,0,800,800);
 canvas.SetFillColor(0);
 
+# Upper histogram plot is pad1
+# canvas.cd(1)
+pad1 = TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+pad1.SetBottomMargin(0)  # joins upper and lower plot
+#pad1.SetGridx()
+pad1.Draw()
+# Lower ratio plot is pad2
+pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+pad2.SetTopMargin(0.01)  # joins upper and lower plot
+pad2.SetBottomMargin(0.2)
+#pad2.SetGridx()
+pad2.Draw()
+pad1.cd()
+
+
 bin_sizes = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
 bin_sizes_array = array('d',bin_sizes)
 binnum = 10
@@ -121,6 +136,61 @@ leg.AddEntry(PPT_b_FCT,"FixedCutTight background","lep");
 
 leg.SetBorderSize(0)
 leg.Draw()
+#################################
+ratio1 = PPT_s_nocut.Clone("ratio")
+#ratio1.SetMarkerStyle(20)
+ratio1.SetMinimum(0)
+ratio1.SetMaximum(2)
+ratio1.Sumw2()
+ratio1.SetStats(0)
+ratio1.Divide(PPT_s_FCT)
+ratio1.SetTitle("")
+y = ratio1.GetYaxis()
+y.SetTitle("Nominal / Isolation")
+y.SetNdivisions(505)
+y.SetTitleSize(20)
+y.SetTitleFont(43)
+y.SetTitleOffset(1.55)
+y.SetLabelFont(43)
+y.SetLabelSize(15)
+x = ratio1.GetXaxis()
+x.SetTitle("PPT Output")
+x.SetTitleSize(20)
+x.SetTitleFont(43)
+x.SetTitleOffset(3.2)
+x.SetLabelFont(43)
+x.SetLabelSize(15)
+pad2.cd()
+ratio1.SetLineColor(419)
+ratio1.SetMarkerStyle(20)
+ratio1.SetMarkerColor(419)
+ratio1.Draw("")
+
+ratio2 = PPT_s_nocut.Clone("ratio")
+ratio2.Divide(PPT_s_FCTCO)
+ratio2.SetLineColor(1)
+ratio2.SetMarkerStyle(20)
+ratio2.SetMarkerColor(1)
+ratio2.Draw("same")
+
+ratio3 = PPT_s_nocut.Clone("ratio")
+ratio3.Divide(PPT_s_FCL)
+ratio3.SetLineColor(860)
+ratio3.SetMarkerStyle(20)
+ratio3.SetMarkerColor(860)
+ratio3.Draw("same")
+
+sig_ratio = TLatex();
+sig_ratio.SetNDC();
+sig_ratio.SetTextAlign(12);
+sig_ratio.SetTextFont(63);
+sig_ratio.SetTextSizePixels(18);
+sig_ratio.DrawLatex(0.8,0.85, "#bf{signal}");
+
+line = TF1("fa1","1",-1000,1000);
+line.Draw("same")
+line.SetLineColor(632);
+###############################
 
 canvas.SaveAs("PPT_isolation.eps")
 
