@@ -1,5 +1,6 @@
 from ROOT import *
 from array import array
+gROOT.SetBatch()
 
 path="/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010_march18/CR1S/"
 signal = "*ttgamma*"
@@ -18,16 +19,18 @@ canvas.SetFillColor(0);
 
 # Upper histogram plot is pad1
 # canvas.cd(1)
-pad1 = TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
-pad1.SetBottomMargin(0)  # joins upper and lower plot
-#pad1.SetGridx()
+pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
+pad1.SetBottomMargin(0.04)  # joins upper and lower plot
 pad1.Draw()
 # Lower ratio plot is pad2
-pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
-pad2.SetTopMargin(0.01)  # joins upper and lower plot
-pad2.SetBottomMargin(0.2)
-#pad2.SetGridx()
+pad2 = TPad("pad2", "pad2", 0, 0.23, 1, 0.4)
+pad2.SetTopMargin(0.03)  # joins upper and lower plot
+pad2.SetBottomMargin(0.04)
 pad2.Draw()
+pad3 = TPad("pad3", "pad3", 0, 0.010, 1, 0.23)
+pad3.SetTopMargin(0.04)  # joins upper and lower plot
+pad3.SetBottomMargin(0.22)
+pad3.Draw()
 pad1.cd()
 
 
@@ -73,6 +76,8 @@ y1.SetRangeUser(0.,0.4)
 x1 = PPT_s_nocut.GetXaxis()
 x1.SetTitle("PPT output")
 x1.SetLimits(0.,1)
+x1.SetTitleOffset(1.5)
+x1.SetLabelSize(0)
 
 PPT_s_nocut.SetLineColor(632)
 PPT_b_nocut.SetLineColor(625)
@@ -113,11 +118,11 @@ lumi.SetNDC();
 lumi.SetTextAlign(12);
 lumi.SetTextFont(63);
 lumi.SetTextSizePixels(19);
-lumi.DrawLatex(0.2,0.85, "#it{#scale[1.2]{ATLAS}} #bf{Internal}");
-lumi.DrawLatex(0.2,0.81, "#bf{#sqrt{s}=13 TeV}");
+lumi.DrawLatex(0.4,0.85, "#it{#scale[1.2]{ATLAS}} #bf{Internal}");
+lumi.DrawLatex(0.4,0.8, "#bf{#sqrt{s}=13 TeV, 36.1 fb^{-1}}");
 
-leg = TLegend(0.2,0.58,0.35,0.75);
-leg.SetTextSize(0.02);
+leg = TLegend(0.4,0.50,0.55,0.75);
+leg.SetTextSize(0.03);
 leg.AddEntry(PPT_s_nocut,"no requirement signal","l");
 leg.AddEntry(PPT_b_nocut,"no requirement background","lep");
 
@@ -137,6 +142,7 @@ leg.AddEntry(PPT_b_FCT,"FixedCutTight background","lep");
 leg.SetBorderSize(0)
 leg.Draw()
 #################################
+pad2.cd()
 ratio1 = PPT_s_nocut.Clone("ratio")
 #ratio1.SetMarkerStyle(20)
 ratio1.SetMinimum(0)
@@ -146,11 +152,12 @@ ratio1.SetStats(0)
 ratio1.Divide(PPT_s_FCT)
 ratio1.SetTitle("")
 y = ratio1.GetYaxis()
-y.SetTitle("Nominal / Isolation")
+y.SetTitle("#frac{Nominal}{Isolation}")
 y.SetNdivisions(505)
-y.SetTitleSize(20)
+y.SetTitleSize(15)
+y.CenterTitle()
 y.SetTitleFont(43)
-y.SetTitleOffset(1.55)
+y.SetTitleOffset(1.7)
 y.SetLabelFont(43)
 y.SetLabelSize(15)
 x = ratio1.GetXaxis()
@@ -159,25 +166,18 @@ x.SetTitleSize(20)
 x.SetTitleFont(43)
 x.SetTitleOffset(3.2)
 x.SetLabelFont(43)
-x.SetLabelSize(15)
-pad2.cd()
+x.SetLabelSize(0)
 ratio1.SetLineColor(419)
-ratio1.SetMarkerStyle(20)
-ratio1.SetMarkerColor(419)
-ratio1.Draw("")
+ratio1.Draw()
 
-ratio2 = PPT_s_nocut.Clone("ratio")
+ratio2 = PPT_s_nocut.Clone("ratio_2")
 ratio2.Divide(PPT_s_FCTCO)
 ratio2.SetLineColor(1)
-ratio2.SetMarkerStyle(20)
-ratio2.SetMarkerColor(1)
 ratio2.Draw("same")
 
-ratio3 = PPT_s_nocut.Clone("ratio")
+ratio3 = PPT_s_nocut.Clone("ratio_3")
 ratio3.Divide(PPT_s_FCL)
 ratio3.SetLineColor(860)
-ratio3.SetMarkerStyle(20)
-ratio3.SetMarkerColor(860)
 ratio3.Draw("same")
 
 sig_ratio = TLatex();
@@ -185,12 +185,68 @@ sig_ratio.SetNDC();
 sig_ratio.SetTextAlign(12);
 sig_ratio.SetTextFont(63);
 sig_ratio.SetTextSizePixels(18);
-sig_ratio.DrawLatex(0.8,0.85, "#bf{signal}");
+sig_ratio.DrawLatex(0.7,0.85, "#bf{signal}");
 
-line = TF1("fa1","1",-1000,1000);
+line = TF1("Sig_fa1","1",-1000,1000);
 line.Draw("same")
 line.SetLineColor(632);
 ###############################
+#Ratio 2
+#################################
+pad3.cd()
+b_ratio1 = PPT_b_nocut.Clone("b_ratio")
+#b_ratio1.SetMarkerStyle(20)
+b_ratio1.SetMinimum(0)
+b_ratio1.SetMaximum(2)
+b_ratio1.Sumw2()
+b_ratio1.SetStats(0)
+b_ratio1.Divide(PPT_b_FCT)
+b_ratio1.SetTitle("")
+b_y = b_ratio1.GetYaxis()
+b_y.SetTitle("#frac{Nominal}{Isolation}")
+b_y.SetNdivisions(505)
+b_y.SetTitleSize(15)
+b_y.CenterTitle()
+b_y.SetTitleFont(43)
+b_y.SetTitleOffset(1.7)
+b_y.SetLabelFont(43)
+b_y.SetLabelSize(15)
+b_x = b_ratio1.GetXaxis()
+b_x.SetTitle("PPT Output")
+b_x.SetTitleSize(20)
+b_x.SetTitleFont(43)
+b_x.SetTitleOffset(3.8)
+b_x.SetLabelFont(43)
+b_x.SetLabelSize(15)
+b_ratio1.SetLineColor(417)
+b_ratio1.SetMarkerStyle(20)
+b_ratio1.SetMarkerColor(417)
+b_ratio1.Draw("")
+
+b_ratio2 = PPT_b_nocut.Clone("b_ratio2")
+b_ratio2.Divide(PPT_b_FCTCO)
+b_ratio2.SetLineColor(1)
+b_ratio2.SetMarkerStyle(20)
+b_ratio2.SetMarkerColor(1)
+b_ratio2.Draw("same")
+
+b_ratio3 = PPT_b_nocut.Clone("b_ratio3")
+b_ratio3.Divide(PPT_b_FCL)
+b_ratio3.SetLineColor(856)
+b_ratio3.SetMarkerStyle(20)
+b_ratio3.SetMarkerColor(856)
+b_ratio3.Draw("same")
+
+bkg_ratio = TLatex();
+bkg_ratio.SetNDC();
+bkg_ratio.SetTextAlign(12);
+bkg_ratio.SetTextFont(63);
+bkg_ratio.SetTextSizePixels(18);
+bkg_ratio.DrawLatex(0.7,0.85, "#bf{background}");
+
+b_line = TF1("fa1","1",-1000,1000);
+b_line.Draw("same")
+b_line.SetLineColor(625);
 
 canvas.SaveAs("PPT_isolation.eps")
 
