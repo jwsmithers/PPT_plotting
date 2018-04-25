@@ -1,6 +1,7 @@
 from ROOT import *
 from array import array
 gROOT.SetBatch()
+gErrorIgnoreLevel = kFatal;
 
 path="/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010_march18/CR1S/"
 signal = "*ttgamma*"
@@ -46,18 +47,23 @@ PPT_b_FCTCO = TH1D("PPT_b_FCTCO","PPT_b_FCTCO", binnum, bin_sizes_array);
 PPT_s_FCT = TH1D("PPT_s_FCT","PPT_s_FCT", binnum, bin_sizes_array);
 PPT_b_FCT = TH1D("PPT_b_FCT","PPT_b_FCT", binnum, bin_sizes_array);
 
+signal_selection = "!( (ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph_index1]==24 || ph_truthOrigin[selph_index1]==25 || ph_truthOrigin[selph_index1]==26 || ph_truthOrigin[selph_index1]==27 || ph_truthOrigin[selph_index1]==28 || ph_truthOrigin[selph_index1]==29 || ph_truthOrigin[selph_index1]==30 || ph_truthOrigin[selph_index1]==31 || ph_truthOrigin[selph_index1]==32 || ph_truthOrigin[selph_index1]==33 || ph_truthOrigin[selph_index1]==34 || ph_truthOrigin[selph_index1]==35 || ph_truthOrigin[selph_index1]==42) && ph_truthType[selph_index1] == 16 ) && !( abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ) )"
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_nocut","!(event_photonorigin == 10 || event_photonorigin == 20 )","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_nocut","event_photonorigin == 10","norm")
+hfake_selection = "(ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph_index1]==24 || ph_truthOrigin[selph_index1]==25 || ph_truthOrigin[selph_index1]==26 || ph_truthOrigin[selph_index1]==27 || ph_truthOrigin[selph_index1]==28 || ph_truthOrigin[selph_index1]==29 || ph_truthOrigin[selph_index1]==30 || ph_truthOrigin[selph_index1]==31 || ph_truthOrigin[selph_index1]==32 || ph_truthOrigin[selph_index1]==33 || ph_truthOrigin[selph_index1]==34 || ph_truthOrigin[selph_index1]==35 || ph_truthOrigin[selph_index1]==42) && ph_truthType[selph_index1] == 16  && !( abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ) )"
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCL","!(event_photonorigin == 10 || event_photonorigin == 20 ) && ph_isoFCL","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCL","event_photonorigin == 10 && ph_isoFCL","norm")
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCTCO","!(event_photonorigin == 10 || event_photonorigin == 20 ) && ph_isoFCTCO","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCTCO","event_photonorigin == 10 && ph_isoFCTCO","norm")
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCT","!(event_photonorigin == 10 || event_photonorigin == 20 ) && ph_isoFCT","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCT","event_photonorigin == 10 && ph_isoFCT","norm")
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_nocut",signal_selection,"norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_nocut",hfake_selection,"norm")
+
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCL",signal_selection+" && ph_isoFCL","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCL",hfake_selection+" && ph_isoFCL","norm")
+
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCTCO",signal_selection+" && ph_isoFCTCO","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCTCO",hfake_selection+" && ph_isoFCTCO","norm")
+
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCT",signal_selection+" && ph_isoFCT","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCT",hfake_selection+" && ph_isoFCT","norm")
 
 PPT_s_nocut.Draw("H")
 PPT_b_nocut.Draw("same p")
