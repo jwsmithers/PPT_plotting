@@ -1,7 +1,8 @@
 from ROOT import *
 from array import array
-gROOT.SetBatch()
-gErrorIgnoreLevel = kFatal;
+gROOT.SetBatch(1)
+#gROOT.gErrorIgnoreLevel = kFatal;
+gROOT.ProcessLine( "gErrorIgnoreLevel = 6001;")
 
 path="/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010_march18/CR1S/"
 signal = "*ttgamma*"
@@ -51,19 +52,23 @@ signal_selection = "!( (ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph
 
 hfake_selection = "(ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph_index1]==24 || ph_truthOrigin[selph_index1]==25 || ph_truthOrigin[selph_index1]==26 || ph_truthOrigin[selph_index1]==27 || ph_truthOrigin[selph_index1]==28 || ph_truthOrigin[selph_index1]==29 || ph_truthOrigin[selph_index1]==30 || ph_truthOrigin[selph_index1]==31 || ph_truthOrigin[selph_index1]==32 || ph_truthOrigin[selph_index1]==33 || ph_truthOrigin[selph_index1]==34 || ph_truthOrigin[selph_index1]==35 || ph_truthOrigin[selph_index1]==42) && ph_truthType[selph_index1] == 16  && !( abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ) )"
 
+weight= "weight_mc*weight_pileup*ph_SF_eff[selph_index1]*ph_SF_iso[selph_index1]*weight_leptonSF*weight_jvt*weight_bTagSF_Continuous*event_norm2 * event_lumi * ph_kfactor_overall[selph_index1]"
 
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_nocut",signal_selection,"norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_nocut",hfake_selection,"norm")
+signal_w_weight = weight+" * ("+signal_selection+")"
+hfake_w_weight = weight+" * ("+hfake_selection+")"
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCL",signal_selection+" && ph_isoFCL","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCL",hfake_selection+" && ph_isoFCL","norm")
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_nocut",signal_w_weight,"norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_nocut",hfake_w_weight,"norm")
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCTCO",signal_selection+" && ph_isoFCTCO","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCTCO",hfake_selection+" && ph_isoFCTCO","norm")
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCL",signal_w_weight+" && ph_isoFCL","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCL",hfake_w_weight+" && ph_isoFCL","norm")
 
-signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCT",signal_selection+" && ph_isoFCT","norm")
-background_chain.Draw("ph_HFT_MVA>>PPT_b_FCT",hfake_selection+" && ph_isoFCT","norm")
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCTCO",signal_w_weight+" && ph_isoFCTCO","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCTCO",hfake_w_weight+" && ph_isoFCTCO","norm")
+
+signal_chain.Draw("ph_HFT_MVA>>PPT_s_FCT",signal_w_weight+" && ph_isoFCT","norm")
+background_chain.Draw("ph_HFT_MVA>>PPT_b_FCT",hfake_w_weight+" && ph_isoFCT","norm")
 
 PPT_s_nocut.Draw("H")
 PPT_b_nocut.Draw("same p")
@@ -80,7 +85,7 @@ y1 = PPT_s_nocut.GetYaxis()
 y1.SetTitle("A.U.")
 y1.SetRangeUser(0.,0.4)
 x1 = PPT_s_nocut.GetXaxis()
-x1.SetTitle("PPT output")
+x1.SetTitle("prompt photon tagger output")
 x1.SetLimits(0.,1)
 x1.SetTitleOffset(1.5)
 x1.SetLabelSize(0)
@@ -124,11 +129,11 @@ lumi.SetNDC();
 lumi.SetTextAlign(12);
 lumi.SetTextFont(63);
 lumi.SetTextSizePixels(19);
-lumi.DrawLatex(0.4,0.85, "#it{#scale[1.2]{ATLAS}} #bf{Internal}");
-lumi.DrawLatex(0.4,0.8, "#bf{#sqrt{s}=13 TeV, 36.1 fb^{-1}}");
+#lumi.DrawLatex(0.4,0.85, "#it{#scale[1.2]{ATLAS}} #bf{Internal}");
+lumi.DrawLatex(0.35,0.85, "#bf{#sqrt{s}=13 TeV, 36.1 fb^{-1}}");
 
-leg = TLegend(0.4,0.50,0.55,0.75);
-leg.SetTextSize(0.03);
+leg = TLegend(0.35,0.40,0.6,0.8);
+leg.SetTextSize(0.04);
 leg.AddEntry(PPT_s_nocut,"no requirement signal","l");
 leg.AddEntry(PPT_b_nocut,"no requirement background","lep");
 
@@ -167,7 +172,7 @@ y.SetTitleOffset(1.7)
 y.SetLabelFont(43)
 y.SetLabelSize(15)
 x = ratio1.GetXaxis()
-x.SetTitle("PPT Output")
+x.SetTitle("prompt photon tagger output")
 x.SetTitleSize(20)
 x.SetTitleFont(43)
 x.SetTitleOffset(3.2)
@@ -218,7 +223,7 @@ b_y.SetTitleOffset(1.7)
 b_y.SetLabelFont(43)
 b_y.SetLabelSize(15)
 b_x = b_ratio1.GetXaxis()
-b_x.SetTitle("PPT Output")
+b_x.SetTitle("prompt photon tagger output")
 b_x.SetTitleSize(20)
 b_x.SetTitleFont(43)
 b_x.SetTitleOffset(3.8)
